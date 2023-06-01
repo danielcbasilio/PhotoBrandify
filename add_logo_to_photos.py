@@ -4,7 +4,7 @@ import os
 logo_path = "NuIEEE_logo_blue.png"
 photos_directory = "test_datattack_photos/"
 braded_photos_directory = "branded_photos_test/"
-logo_size_ratio = 1
+logo_size_ratio = 1.5
 
 def add_logo_to_photos(logo_path, photos_directory):
     logo = Image.open(logo_path)
@@ -27,7 +27,7 @@ def add_logo_to_photos(logo_path, photos_directory):
             image_with_logo = Image.new("RGBA", photo.size)
             image_with_logo.paste(photo, (0, 0))
             image_with_logo.paste(logo, position, mask=logo.split()[3])
-            print("Doing photo: " + filename)
+            print("Making photo: " + filename)
             # Save the new image with the logo
             new_filename = "logo_" + filename
             new_photo_path = os.path.join(braded_photos_directory, new_filename)
