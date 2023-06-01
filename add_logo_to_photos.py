@@ -5,6 +5,8 @@ logo_path = "NuIEEE_logo_blue.png"
 photos_directory = "test_datattack_photos/"
 braded_photos_directory = "branded_photos_test/"
 logo_size_ratio = 1.5
+logo_displacement_x = 400
+logo_displacement_y = 250
 
 def add_logo_to_photos(logo_path, photos_directory):
     logo = Image.open(logo_path)
@@ -21,7 +23,7 @@ def add_logo_to_photos(logo_path, photos_directory):
             photo = photo.convert("RGBA")
 
             # Calculate the position for the logo (bottom right corner)
-            position = (photo.width - logo.width - 400, photo.height - logo.height - 250)
+            position = (photo.width - logo.width - logo_displacement_x, photo.height - logo.height - logo_displacement_y)
 
             # Create a new image with the logo on top of the photo
             image_with_logo = Image.new("RGBA", photo.size)
