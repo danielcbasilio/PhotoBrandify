@@ -39,4 +39,9 @@ logo_size_ratio = 1.5
 logo_displacement_x = 400
 logo_displacement_y = 250
 
-add_logo_to_photos(logo_path, photos_directory, branded_photos_directory, logo_size_ratio, logo_displacement_x, logo_displacement_y)
+def main():
+    print("here i am")
+    add_logo_to_photos(logo_path, photos_directory, branded_photos_directory, logo_size_ratio, logo_displacement_x, logo_displacement_y)
+
+if __name__ == "__main__":
+    main()
