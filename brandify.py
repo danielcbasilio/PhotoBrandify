@@ -2,11 +2,6 @@ from PIL import Image
 from tqdm import tqdm
 import os
 
-def get_logo_test(input_values):
-    return {
-        'color': "blue"
-    }
-
 def get_logo(filename, input_values):
     logo_path = input_values['logo_path'] + "NuIEEE_logo_blue.png"
     logo_size_ratio = input_values['logo_size_ratio']
@@ -25,7 +20,7 @@ def get_logo(filename, input_values):
     region = region.convert("RGB")
     region_data = region.getdata()
 
-    brightness_threshold = 150  # Adjust as needed
+    brightness_threshold = 170  # Adjust as needed
 
     brightness_sum = 0
     pixel_count = 0
@@ -54,10 +49,8 @@ def get_logo(filename, input_values):
 
 def add_logo_to_photos(input_values):
 
-    logo_path = input_values['logo_path']
     photos_directory = input_values['photos_directory']
     branded_photos_directory = input_values['branded_photos_directory']
-    logo_size_ratio = input_values['logo_size_ratio']
     logo_displacement_x = input_values['logo_displacement_x']
     logo_displacement_y = input_values['logo_displacement_y']
 
@@ -65,6 +58,14 @@ def add_logo_to_photos(input_values):
 
     if not os.path.exists(branded_photos_directory):
         os.makedirs(branded_photos_directory)
+
+    if os.path.exists(branded_photos_directory):
+        files = os.listdir(branded_photos_directory)
+        if files:
+            for file in files:
+                file_path = os.path.join(branded_photos_directory, file)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
 
     for filename in tqdm(os.listdir(photos_directory), desc="Processing photos"):
         if filename.endswith(".jpg") or filename.endswith(".png") or filename.endswith(".JPG"):
@@ -92,7 +93,7 @@ def add_logo_to_photos(input_values):
 input_values = {
     'logo_path' : "NuIEEE_logos/",
     'photos_directory' : "photos_to_brandify/",
-    'branded_photos_directory' : "new_photos_test/",
+    'branded_photos_directory' : "brandified_photos/",
     'logo_size_ratio' : 1.5,
     'logo_displacement_x' : 400,
     'logo_displacement_y' : 250
