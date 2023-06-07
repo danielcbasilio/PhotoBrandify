@@ -7,6 +7,7 @@ def get_logo(filename, input_values):
     logo_size_ratio = input_values['logo_size_ratio']
     logo_displacement_x = input_values['logo_displacement_x']
     logo_displacement_y = input_values['logo_displacement_y']
+    branded_photos_directory = input_values['branded_photos_directory']
     photo_path = input_values['photos_directory'] + filename
 
     logo_template = Image.open(logo_path) #still to be decided after when color has been detected
@@ -16,9 +17,19 @@ def get_logo(filename, input_values):
     logo_template = logo_template.resize((logo_width, logo_height), Image.LANCZOS)
 
     photo = Image.open(photo_path)
-    region = photo.crop((logo_displacement_x, logo_displacement_y, logo_displacement_x + logo_width, logo_displacement_y + logo_height))
+    region = photo.crop((photo.width - logo_displacement_x - logo_width, 
+                         photo.height - logo_displacement_y - logo_height, 
+                         photo.width, 
+                         photo.height))
     region = region.convert("RGB")
     region_data = region.getdata()
+
+    """
+    # for testing
+    new_filename = "region_" + filename
+    region_path = os.path.join(branded_photos_directory, new_filename)
+    region.save(region_path, format="PNG")
+    """
 
     brightness_threshold = 170  # Adjust as needed
 
