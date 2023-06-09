@@ -7,10 +7,10 @@ def get_logo(filename, input_values):
     logo_size_ratio = input_values['logo_size_ratio']
     logo_displacement_x = input_values['logo_displacement_x']
     logo_displacement_y = input_values['logo_displacement_y']
-    branded_photos_directory = input_values['branded_photos_directory']
+    # branded_photos_directory = input_values['branded_photos_directory']
     photo_path = input_values['photos_directory'] + filename
 
-    logo_template = Image.open(logo_path) #still to be decided after when color has been detected
+    logo_template = Image.open(logo_path)
     logo_template = logo_template.convert("RGBA")
     logo_width = int(logo_size_ratio * logo_template.size[0])
     logo_height = int((logo_width / logo_template.size[0]) * logo_template.size[1])
@@ -31,8 +31,8 @@ def get_logo(filename, input_values):
     region.save(region_path, format="PNG")
     """
 
-    brightness_threshold = 170  # Adjust as needed
-
+    brightness_threshold = 170 
+    
     brightness_sum = 0
     pixel_count = 0
 
@@ -86,16 +86,13 @@ def add_logo_to_photos(input_values):
             photo = Image.open(photo_path)
             photo = photo.convert("RGBA")
 
-            # Calculate the position for the logo (bottom right corner)
             position = (photo.width - logo.width - logo_displacement_x, photo.height - logo.height - logo_displacement_y)
 
-            # Create a new image with the logo on top of the photo
             image_with_logo = Image.new("RGBA", photo.size)
             image_with_logo.paste(photo, (0, 0))
             image_with_logo.paste(logo, position, mask=logo.split()[3])
             tqdm.write("Making photo: " + filename)
 
-            # Save the new image with the logo
             new_filename = "logo_" + filename
             new_photo_path = os.path.join(branded_photos_directory, new_filename)
             image_with_logo.save(new_photo_path, format="PNG")
