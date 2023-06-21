@@ -4,13 +4,12 @@
 from PIL import Image
 from tqdm import tqdm
 import os
-import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QFileDialog, QProgressBar, QVBoxLayout, QHBoxLayout, QTextEdit
 
 class InputWindow(QWidget):
-    def __init__(self, app, input_values):
+    def __init__(self, input_values):
         super().__init__()
-        self.setWindowTitle("Input Values")
+        self.setWindowTitle("PhotoBrandify")
         self.setGeometry(100, 100, 400, 200)
 
         main_layout = QVBoxLayout()
@@ -102,7 +101,7 @@ class InputWindow(QWidget):
 
     def select_logo_path(self):
         logo_path = QFileDialog.getExistingDirectory(self, 'Select Logo Path')
-        self.logo_path_edit.setText(logo_path[0])
+        self.logo_path_edit.setText(logo_path)
 
     def select_photos_directory(self):
         photos_directory = QFileDialog.getExistingDirectory(self, 'Select Photos Directory')
@@ -187,8 +186,6 @@ def add_logo_to_photos(input_values, window):
     logo_displacement_x = input_values['logo_displacement_x']
     logo_displacement_y = input_values['logo_displacement_y']
 
-    print('branded_photos_directory: ' + str(branded_photos_directory))
-
     if not os.path.exists(branded_photos_directory):
         os.makedirs(branded_photos_directory)
 
@@ -203,41 +200,49 @@ def add_logo_to_photos(input_values, window):
     # for progress bar
     total_files = len(os.listdir(input_values['photos_directory']))
     completed_files = 0
+    filename_array = list(filter(lambda filename: filename.endswith(".jpg") 
+                                or filename.endswith(".png") 
+                                or filename.endswith(".JPG"), 
+                            os.listdir(photos_directory)))
+    total_i = len(filename_array)
+    print(filename_array)
 
-    for filename in tqdm(os.listdir(photos_directory), desc="Processing photos"):
-        if filename.endswith(".jpg") or filename.endswith(".png") or filename.endswith(".JPG"):
-            logo_object = get_logo(filename, input_values)
-            logo = logo_object['logo_object']
-            photo_path = os.path.join(photos_directory, filename)
-            photo = Image.open(photo_path)
-            photo = photo.convert("RGBA")
+    for i, filename in enumerate(tqdm(filename_array, desc="Processing photos")):
+        logo_object = get_logo(filename, input_values)
+        logo = logo_object['logo_object']
+        photo_path = os.path.join(photos_directory, filename)
+        photo = Image.open(photo_path)
+        photo = photo.convert("RGBA")
 
-            position = (
-                photo.width - logo.width - logo_displacement_x, 
-                photo.height - logo.height - logo_displacement_y
-            )
+        position = (
+            photo.width - logo.width - logo_displacement_x, 
+            photo.height - logo.height - logo_displacement_y
+        )
 
-            # Progress
-            ## progress text
-            tqdm.write("Making photo: " + filename)
-            window.progress_text.append("Making photo: " + filename)
-            window.progress_text.ensureCursorVisible()
-            ## progress bar
-            completed_files += 1
-            progress = int((completed_files / total_files) * 100)
-            window.progress_bar.setValue(progress)
-            QApplication.processEvents()  # Update the GUI
+        # Progress
+        ## progress text
+        tqdm.write("Making photo: " + filename)
+        window.progress_text.append("Making photo: " + filename + " (" + str(i+1) + " of " + str(total_i) + ")")
+        window.progress_text.ensureCursorVisible()
+        ## progress bar
+        completed_files += 1
+        progress = int((completed_files / total_files) * 100)
+        window.progress_bar.setValue(progress)
+        QApplication.processEvents()  # Update the GUI
 
-            image_with_logo = Image.new("RGBA", photo.size)
-            image_with_logo.paste(photo, (0, 0))
-            image_with_logo.paste(logo, position, mask=logo.split()[3])
+        image_with_logo = Image.new("RGBA", photo.size)
+        image_with_logo.paste(photo, (0, 0))
+        image_with_logo.paste(logo, position, mask=logo.split()[3])
 
-            new_filename = "logo_" + filename
-            new_photo_path = os.path.join(branded_photos_directory, new_filename)
-            image_with_logo.save(new_photo_path, format="PNG")
+        new_filename = "logo_" + filename
+        new_photo_path = os.path.join(branded_photos_directory, new_filename)
+        image_with_logo.save(new_photo_path, format="PNG")
     
     # progress bar finished
     window.progress_bar.setValue(100)
+    window.progress_text.append("Finished processing photos.")
+    window.progress_text.ensureCursorVisible()
+    QApplication.processEvents()  # Update the GUI
 
 def main():
     print("starting script...")
@@ -250,7 +255,7 @@ def main():
         'logo_displacement_x': 400,
         'logo_displacement_y': 250
     }
-    window = InputWindow(app, input_values)
+    window = InputWindow(input_values)
     window.show()
     app.exec_()
 
