@@ -1,29 +1,29 @@
-# detect the necessary logos given the photo
-# balance the amount of logos in a photo album
-
+import subprocess
 from PIL import Image
 from tqdm import tqdm
 import os
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QFileDialog, QProgressBar, QVBoxLayout, QHBoxLayout, QTextEdit
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QFileDialog, QProgressBar, QVBoxLayout, QHBoxLayout, QTextEdit, QComboBox
 
 class InputWindow(QWidget):
     def __init__(self, input_values):
         super().__init__()
         self.setWindowTitle("PhotoBrandify")
         self.setGeometry(100, 100, 400, 200)
+        self.input_values = input_values
 
         main_layout = QVBoxLayout()
         self.setLayout(main_layout)
 
-        # logo_path
-        logo_layout = QHBoxLayout()
-        self.logo_path_label = QLabel("Logo Path:")
-        self.logo_path_edit = QLineEdit()
-        self.logo_path_button = QPushButton("Browse")
-        logo_layout.addWidget(self.logo_path_label)
-        logo_layout.addWidget(self.logo_path_edit)
-        logo_layout.addWidget(self.logo_path_button)
-        main_layout.addLayout(logo_layout)
+        # stamping_mode
+        stamping_mode_layout = QHBoxLayout()
+        self.stamping_mode_label = QLabel("Stamping Mode:")
+        self.stamping_mode_combo = QComboBox()
+        self.stamping_mode_combo.addItem("Option 1")
+        self.stamping_mode_combo.addItem("Option 2")
+        self.stamping_mode_combo.addItem("Option 3")
+        stamping_mode_layout.addWidget(self.stamping_mode_label)
+        stamping_mode_layout.addWidget(self.stamping_mode_combo)
+        main_layout.addLayout(stamping_mode_layout)
 
         # photos_directory
         photos_layout = QHBoxLayout()
@@ -34,40 +34,6 @@ class InputWindow(QWidget):
         photos_layout.addWidget(self.photos_directory_edit)
         photos_layout.addWidget(self.photos_directory_button)
         main_layout.addLayout(photos_layout)
-
-        # branded_photos_directory
-        branded_photos_layout = QHBoxLayout()
-        self.branded_photos_directory_label = QLabel("Branded Photos Directory:")
-        self.branded_photos_directory_edit = QLineEdit()
-        self.branded_photos_directory_button = QPushButton("Browse")
-        branded_photos_layout.addWidget(self.branded_photos_directory_label)
-        branded_photos_layout.addWidget(self.branded_photos_directory_edit)
-        branded_photos_layout.addWidget(self.branded_photos_directory_button)
-        main_layout.addLayout(branded_photos_layout)
-
-        # logo_size_ratio
-        logo_size_ratio_layout = QHBoxLayout()
-        self.logo_size_ratio_label = QLabel("Logo Size Ratio:")
-        self.logo_size_ratio_edit = QLineEdit()
-        logo_size_ratio_layout.addWidget(self.logo_size_ratio_label)
-        logo_size_ratio_layout.addWidget(self.logo_size_ratio_edit)
-        main_layout.addLayout(logo_size_ratio_layout)
-
-        # logo_displacement_x
-        logo_displacement_x_layout = QHBoxLayout()
-        self.logo_displacement_x_label = QLabel("Logo Displacement X:")
-        self.logo_displacement_x_edit = QLineEdit()
-        logo_displacement_x_layout.addWidget(self.logo_displacement_x_label)
-        logo_displacement_x_layout.addWidget(self.logo_displacement_x_edit)
-        main_layout.addLayout(logo_displacement_x_layout)
-
-        # logo_displacement_y
-        logo_displacement_y_layout = QHBoxLayout()
-        self.logo_displacement_y_label = QLabel("Logo Displacement Y:")
-        self.logo_displacement_y_edit = QLineEdit()
-        logo_displacement_y_layout.addWidget(self.logo_displacement_y_label)
-        logo_displacement_y_layout.addWidget(self.logo_displacement_y_edit)
-        main_layout.addLayout(logo_displacement_y_layout)
 
         # start button    
         start_layout = QHBoxLayout()
@@ -86,42 +52,20 @@ class InputWindow(QWidget):
         main_layout.addWidget(self.progress_text)
 
         # Set default values
-        self.logo_path_edit.setText(input_values['logo_path'])
         self.photos_directory_edit.setText(input_values['photos_directory'])
-        self.branded_photos_directory_edit.setText(input_values['branded_photos_directory'])
-        self.logo_size_ratio_edit.setText(str(input_values['logo_size_ratio']))
-        self.logo_displacement_x_edit.setText(str(input_values['logo_displacement_x']))
-        self.logo_displacement_y_edit.setText(str(input_values['logo_displacement_y']))
 
         # Connect button signals to slots
-        self.logo_path_button.clicked.connect(self.select_logo_path)
         self.photos_directory_button.clicked.connect(self.select_photos_directory)
-        self.branded_photos_directory_button.clicked.connect(self.select_branded_photos_directory)
         self.start_button.clicked.connect(self.start)
-
-    def select_logo_path(self):
-        logo_path = QFileDialog.getExistingDirectory(self, 'Select Logo Path')
-        self.logo_path_edit.setText(logo_path)
 
     def select_photos_directory(self):
         photos_directory = QFileDialog.getExistingDirectory(self, 'Select Photos Directory')
         self.photos_directory_edit.setText(photos_directory)
 
-    def select_branded_photos_directory(self):
-        branded_photos_directory = QFileDialog.getExistingDirectory(self, 'Select Branded Photos Directory')
-        self.branded_photos_directory_edit.setText(branded_photos_directory)
-
     def start(self):
-        input_values = {
-            'logo_path': self.logo_path_edit.text(),
-            'photos_directory': self.photos_directory_edit.text(),
-            'branded_photos_directory': self.branded_photos_directory_edit.text(),
-            'logo_size_ratio': float(self.logo_size_ratio_edit.text()),
-            'logo_displacement_x': int(self.logo_displacement_x_edit.text()),
-            'logo_displacement_y': int(self.logo_displacement_y_edit.text())
-        }
+        self.input_values['photos_directory'] = self.photos_directory_edit.text()
         self.progress_bar.setValue(0)
-        add_logo_to_photos(input_values, self)
+        add_logo_to_photos(self.input_values, self)
         self.progress_bar.setValue(100)
 
 def get_logo(filename, input_values):
@@ -243,6 +187,15 @@ def add_logo_to_photos(input_values, window):
     window.progress_text.append("Finished processing photos.")
     window.progress_text.ensureCursorVisible()
     QApplication.processEvents()  # Update the GUI
+
+    #open brandified_photos directory
+    try:
+        subprocess.Popen(['xdg-open', input_values['branded_photos_directory']])
+    except:
+        try:
+            subprocess.Popen(['open', input_values['branded_photos_directory']])
+        except:
+            subprocess.Popen(['explorer', input_values['branded_photos_directory']])
 
 def main():
     print("starting script...")
