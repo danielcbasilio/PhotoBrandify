@@ -2,71 +2,7 @@ import subprocess
 from PIL import Image
 from tqdm import tqdm
 import os
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QFileDialog, QProgressBar, QVBoxLayout, QHBoxLayout, QTextEdit, QComboBox
-
-class InputWindow(QWidget):
-    def __init__(self, input_values):
-        super().__init__()
-        self.setWindowTitle("PhotoBrandify")
-        self.setGeometry(100, 100, 400, 200)
-        self.input_values = input_values
-
-        main_layout = QVBoxLayout()
-        self.setLayout(main_layout)
-
-        # stamping_mode
-        stamping_mode_layout = QHBoxLayout()
-        self.stamping_mode_label = QLabel("Stamping Mode:")
-        self.stamping_mode_combo = QComboBox()
-        self.stamping_mode_combo.addItem("Option 1")
-        self.stamping_mode_combo.addItem("Option 2")
-        self.stamping_mode_combo.addItem("Option 3")
-        stamping_mode_layout.addWidget(self.stamping_mode_label)
-        stamping_mode_layout.addWidget(self.stamping_mode_combo)
-        main_layout.addLayout(stamping_mode_layout)
-
-        # photos_directory
-        photos_layout = QHBoxLayout()
-        self.photos_directory_label = QLabel("Photos Directory:")
-        self.photos_directory_edit = QLineEdit()
-        self.photos_directory_button = QPushButton("Browse")
-        photos_layout.addWidget(self.photos_directory_label)
-        photos_layout.addWidget(self.photos_directory_edit)
-        photos_layout.addWidget(self.photos_directory_button)
-        main_layout.addLayout(photos_layout)
-
-        # start button    
-        start_layout = QHBoxLayout()
-        self.start_button = QPushButton("Start")
-        start_layout.addStretch()
-        start_layout.addWidget(self.start_button)
-        main_layout.addLayout(start_layout)
-
-        # progress bar
-        self.progress_bar = QProgressBar()
-        main_layout.addWidget(self.progress_bar)
-
-        # progress text
-        self.progress_text = QTextEdit(self)
-        self.progress_text.setReadOnly(True)
-        main_layout.addWidget(self.progress_text)
-
-        # Set default values
-        self.photos_directory_edit.setText(input_values['photos_directory'])
-
-        # Connect button signals to slots
-        self.photos_directory_button.clicked.connect(self.select_photos_directory)
-        self.start_button.clicked.connect(self.start)
-
-    def select_photos_directory(self):
-        photos_directory = QFileDialog.getExistingDirectory(self, 'Select Photos Directory')
-        self.photos_directory_edit.setText(photos_directory)
-
-    def start(self):
-        self.input_values['photos_directory'] = self.photos_directory_edit.text()
-        self.progress_bar.setValue(0)
-        add_logo_to_photos(self.input_values, self)
-        self.progress_bar.setValue(100)
+from PyQt5.QtWidgets import QApplication
 
 def get_logo(filename, input_values):
     logo_path = input_values['logo_path'] + "NuIEEE_logo_blue.png"
@@ -197,20 +133,9 @@ def add_logo_to_photos(input_values, window):
         except:
             subprocess.Popen(['explorer', input_values['branded_photos_directory']])
 
-def main():
-    print("starting script...")
-    app = QApplication([])
-    input_values = {
-        'logo_path': "NuIEEE_logos/",
-        'photos_directory': "photos_to_brandify/",
-        'branded_photos_directory': "brandified_photos/",
-        'logo_size_ratio': 1.5,
-        'logo_displacement_x': 400,
-        'logo_displacement_y': 250
-    }
-    window = InputWindow(input_values)
-    window.show()
-    app.exec_()
-
-if __name__ == "__main__":
-    main()
+def run(input_values, window):
+    print("running standard stamping mode...")
+    input_values['logo_size_ratio'] = 1.5
+    input_values['logo_displacement_x'] = 400
+    input_values['logo_displacement_y'] = 250
+    add_logo_to_photos(input_values, window)
