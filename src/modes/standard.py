@@ -33,7 +33,7 @@ class Standard():
                     if os.path.isfile(file_path):
                         os.remove(file_path)
         
-        # for progress bar
+        # getting the files
         total_files = len(os.listdir(photos_directory))
         completed_files = 0
         filename_array = list(filter(lambda filename: filename.endswith(".jpg") 
@@ -45,24 +45,23 @@ class Standard():
 
         for i, filename in enumerate(tqdm(filename_array, desc="Processing photos")):
             logo_path_blue = LOGO_PATH + "/" + "NuIEEE_logo_blue.png"
-            photo_path = photos_directory + filename
-
             logo_template = Image.open(logo_path_blue)
             logo_template = logo_template.convert("RGBA")
             logo_width = int(logo_size_ratio * logo_template.size[0])
             logo_height = int((logo_width / logo_template.size[0]) * logo_template.size[1])
             logo_template = logo_template.resize((logo_width, logo_height), Image.LANCZOS)
 
+            photo_path = photos_directory + filename
             photo = Image.open(photo_path)
             region = photo.crop((photo.width - logo_displacement_x - logo_width, 
                                 photo.height - logo_displacement_y - logo_height, 
                                 photo.width, 
                                 photo.height))
+            
+            # analysing region's brightness
             region = region.convert("RGB")
             region_data = region.getdata()
-
             brightness_threshold = 170 
-            
             brightness_sum = 0
             pixel_count = 0
 
@@ -71,7 +70,6 @@ class Standard():
                 brightness = (r + g + b) // 3
                 brightness_sum += brightness
                 pixel_count += 1
-
             average_brightness = brightness_sum // pixel_count
 
             if average_brightness < brightness_threshold:
@@ -79,14 +77,10 @@ class Standard():
             else:
                 logo_color = "black"
 
+            # resizes the logo to the size of the region
             logo = Image.open(LOGO_PATH + "/" + f'NuIEEE_logo_{logo_color}.png')
             logo = logo.convert("RGBA")
-            logo = logo.resize((logo_width, logo_height), Image.LANCZOS)    
-            logo_object = {
-                'logo_object': logo,
-                'color': logo_color
-            }
-            logo = logo_object['logo_object']
+            logo = logo.resize((logo_width, logo_height), Image.LANCZOS)
             photo_path = os.path.join(photos_directory, filename)
             photo = Image.open(photo_path)
             photo = photo.convert("RGBA")
