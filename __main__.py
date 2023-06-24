@@ -1,4 +1,4 @@
-from src import brandify_ui
+from src import app_starter
 
 if __name__ == "__main__":
-    brandify_ui.run()
+    app_starter.run()

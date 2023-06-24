@@ -1,6 +1,7 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QFileDialog, QProgressBar, QVBoxLayout, QHBoxLayout, QTextEdit, QComboBox
+from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QFileDialog, QProgressBar, QVBoxLayout, QHBoxLayout, QTextEdit, QComboBox
 from PyQt5.QtCore import QThread
-from src.modes import standard
+import subprocess
+from src.constants import *
 
 class InputWindow(QWidget):
     def __init__(self, input_values, modes):
@@ -17,9 +18,8 @@ class InputWindow(QWidget):
         stamping_mode_layout = QHBoxLayout()
         self.stamping_mode_label = QLabel("Stamping Mode:")
         self.stamping_mode_combo = QComboBox()
-        self.stamping_mode_combo.addItem("Standard")
-        self.stamping_mode_combo.addItem("Tomada de Posse")
-        self.stamping_mode_combo.addItem("Everywhere, Everything")
+        for mode in modes:
+            self.stamping_mode_combo.addItem(mode['name'])
         stamping_mode_layout.addWidget(self.stamping_mode_label)
         stamping_mode_layout.addWidget(self.stamping_mode_combo)
         main_layout.addLayout(stamping_mode_layout)
@@ -46,9 +46,9 @@ class InputWindow(QWidget):
         main_layout.addWidget(self.progress_bar)
 
         # progress text
-        self.progress_text = QTextEdit(self)
-        self.progress_text.setReadOnly(True)
-        main_layout.addWidget(self.progress_text)
+        self.window_text = QTextEdit(self)
+        self.window_text.setReadOnly(True)
+        main_layout.addWidget(self.window_text)
 
         # Set default values
         self.photos_directory_edit.setText(input_values['photos_directory'])
@@ -65,14 +65,18 @@ class InputWindow(QWidget):
         self.worker_thread = QThread()
 
     def update_text(self):
-        selected_item = self.stamping_mode_combo.currentText()
-        if selected_item in self.modes:
-            description = selected_item.description
-            text = f"<b>{selected_item.name}</b>: {description}"
-            self.update_text_label(text)
+        name = self.stamping_mode_combo.currentText()
+        for item in self.modes:
+            if item['name'] == name:
+                selected_item = item
+                break
+        description = selected_item['description']
+        text = f"<b>{selected_item['name']}</b>: {description}"
+        self.selected_item = selected_item
+        self.update_text_label(text)
 
     def update_text_label(self, text):
-        self.progress_text.setText(text)
+        self.window_text.setText(text)
 
     def select_photos_directory(self):
         photos_directory = QFileDialog.getExistingDirectory(self, 'Select Photos Directory')
@@ -93,47 +97,20 @@ class InputWindow(QWidget):
         self.photos_directory_edit.setEnabled(False)
         self.photos_directory_button.setEnabled(False)
         self.start_button.setEnabled(False)
+        self.progress_bar.setValue(0)
 
         # Start the worker thread
-        self.progress_bar.setValue(0)
-        self.worker_thread.started.connect(standard.run(self.input_values, self))
-        self.worker_thread.finished.connect(self.enable_ui_elements)
-        self.worker_thread.start()
-        self.progress_bar.setValue(100)
+        try:
+            photos_directory = self.input_values['photos_directory']
+            self.worker_thread.started.connect(lambda: self.selected_item['module'].run(photos_directory, self.window_text, self.progress_bar))
+            self.worker_thread.finished.connect(self.enable_ui_elements)
+            self.worker_thread.start()
+        except:
+            print("photos directory invalid or script not running")
 
     def enable_ui_elements(self):
+            self.progress_bar.setValue(100)
             self.stamping_mode_combo.setEnabled(True)
             self.photos_directory_edit.setEnabled(True)
             self.photos_directory_button.setEnabled(True)
             self.start_button.setEnabled(True)
-
-def run():
-    print("starting script...")
-    app = QApplication([])
-
-    input_values = {
-        'logo_path': "resources/NuIEEE_logos",
-        'photos_directory': "resources/photos_to_brandify",
-        'branded_photos_directory': "brandified_photos",
-    }
-    modes = [
-        {
-            'name': "Standard",
-            'script': "standard.py",
-            'description': "Stamps the logo on the bottom-right corner of the image and decides whether it should stamp black or white."
-        },
-        {
-            'name': "Tomada de Posse",
-            'script': "tdp.py",
-            'description': "Description for Tomada de Posse mode."
-        },
-        {
-            'name': "Everywhere, Everything",
-            'script': "everything.py",
-            'description': "Description for 'Everywhere, Everything' mode."
-        }
-    ]
-
-    window = InputWindow(input_values, modes)
-    window.show()
-    app.exec_()
