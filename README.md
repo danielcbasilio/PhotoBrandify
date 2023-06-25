@@ -2,6 +2,7 @@
 ## Description
 Stamps the ieee up sb logo on a photo album automatically
 ## Instructions
+1. Verify you have all dependencies installed. 
 1. Place all the photos you want to stamp the logo on the photos_to_brandify directory.
 1. Run the command `python3 .` in the PhotoBrandify directory.
 1. Choose the stamping mode and folder with the photos you want to stamp the logo in.

@@ -103,14 +103,27 @@ class InputWindow(QWidget):
         try:
             photos_directory = self.input_values['photos_directory']
             self.worker_thread.started.connect(lambda: self.selected_item['module'].run(photos_directory, self.window_text, self.progress_bar))
-            self.worker_thread.finished.connect(self.enable_ui_elements)
+            self.worker_thread.finished.connect(self.finished_process())
             self.worker_thread.start()
         except:
             print("photos directory invalid or script not running")
 
-    def enable_ui_elements(self):
-            self.progress_bar.setValue(100)
-            self.stamping_mode_combo.setEnabled(True)
-            self.photos_directory_edit.setEnabled(True)
-            self.photos_directory_button.setEnabled(True)
-            self.start_button.setEnabled(True)
+    def finished_process(self):
+            print("at least it got here")
+            try:
+                self.progress_bar.setValue(100)
+                self.stamping_mode_combo.setEnabled(True)
+                self.photos_directory_edit.setEnabled(True)
+                self.photos_directory_button.setEnabled(True)
+                self.start_button.setEnabled(True)
+
+                #open brandified_photos directory
+                try:
+                    subprocess.Popen(['open', BRANDED_PHOTOS_DIRECTORY])
+                except:
+                    try:
+                        subprocess.Popen(['xdg-open', BRANDED_PHOTOS_DIRECTORY])
+                    except:
+                        subprocess.Popen(['explorer', BRANDED_PHOTOS_DIRECTORY])
+            except:
+                print("except...")

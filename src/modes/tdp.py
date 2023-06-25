@@ -9,5 +9,5 @@ def get_info():
         "description": "TDP stamping mode is coming soon."
     }
 
-def run():
+def run(photos_directory, window_text, window_progress_bar):
     print("running tdp stamping mode...")
