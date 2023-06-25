@@ -2,7 +2,6 @@ from PIL import Image
 from tqdm import tqdm
 import os
 from PyQt5.QtWidgets import QApplication
-import subprocess
 from src.constants import *
 
 def get_info():
@@ -21,17 +20,6 @@ class Standard():
         logo_size_ratio = 1.5
         logo_displacement_x = 400
         logo_displacement_y = 250
-
-        if not os.path.exists(BRANDED_PHOTOS_DIRECTORY):
-            os.makedirs(BRANDED_PHOTOS_DIRECTORY)
-
-        if os.path.exists(BRANDED_PHOTOS_DIRECTORY):
-            files = os.listdir(BRANDED_PHOTOS_DIRECTORY)
-            if files:
-                for file in files:
-                    file_path = os.path.join(BRANDED_PHOTOS_DIRECTORY, file)
-                    if os.path.isfile(file_path):
-                        os.remove(file_path)
         
         # getting the files
         total_files = len(os.listdir(photos_directory))

@@ -100,13 +100,13 @@ class InputWindow(QWidget):
         self.progress_bar.setValue(0)
 
         # Start the worker thread
-        try:
-            photos_directory = self.input_values['photos_directory']
-            self.worker_thread.started.connect(lambda: self.selected_item['module'].run(photos_directory, self.window_text, self.progress_bar))
-            self.worker_thread.finished.connect(self.finished_process())
-            self.worker_thread.start()
-        except:
-            print("photos directory invalid or script not running")
+        #try:
+        photos_directory = self.input_values['photos_directory']
+        self.worker_thread.started.connect(lambda: self.selected_item['module'].run(photos_directory, self.window_text, self.progress_bar))
+        self.worker_thread.finished.connect(self.finished_process)
+        self.worker_thread.start()
+        #except:
+            #print("photos directory invalid or script not running\n")
 
     def finished_process(self):
             print("at least it got here")
