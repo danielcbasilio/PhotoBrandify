@@ -13,6 +13,6 @@ Stamps the ieee up sb logo on a photo album automatically
 ### Standard (standard.py)
 Stamps the logo on the bottom-right corner of the image and decides whether it should stamp black or white.
 ### Tomada de Posse (tdp.py)
-Coming soon... 
+Chooses between upper-left, upper-right and bottom-center position to stamp the logo and whether it should be black or white.
 ### Everything (everything.py)
-Coming soon...
+White, black, blue or dark blue logo. Bottom-center, upper-left, upper-right, bottom-left, bottom-right and a powerful algorithm to determine the optimal combination. You'll just have to wait though.
