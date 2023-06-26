@@ -1,6 +1,6 @@
 # PhotoBrandify
 ## Description
-Stamps the ieee up sb logo on a photo album automatically
+Stamps the ieee up sb logo on a photo album automatically.
 ## Instructions
 1. Check if you have all the dependencies installed. 
 1. Place all the photos you want to stamp the logo on the photos_to_brandify directory.
