@@ -48,7 +48,7 @@ class InputWindow(QWidget):
         # progress text
         self.window_text = QTextEdit(self)
         self.window_text.setReadOnly(True)
-        main_layout.addWidget(self.window_text)
+        main_layout.addWidget(self.window_text, stretch=1)
 
         # Set default values
         self.photos_directory_edit.setText(input_values['photos_directory'])
