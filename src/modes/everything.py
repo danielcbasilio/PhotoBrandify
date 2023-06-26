@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 def get_info():
     return {
-        "name": "Everything, everywhere",
+        "name": "Everything, Everywhere",
         "description": "White, black, blue or dark blue logo. Bottom-center, upper-left, upper-right, bottom-left, bottom-right and a powerful algorithm to determine the optimal combination. You'll just have to wait though."
     }
 
